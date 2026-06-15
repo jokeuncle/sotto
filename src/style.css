@@ -18,10 +18,11 @@ body {
 }
 
 main {
+  position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  padding: 26px 30px;
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -33,6 +34,9 @@ main {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 
+  /* 把磨砂层钉到独立 compositor layer 上，避免子元素 transform 时被重排丢帧 */
+  will-change: backdrop-filter;
+
   color: rgba(245, 245, 245, 0.92);
   opacity: 0;
   transition: opacity 1.4s ease;
@@ -42,6 +46,61 @@ body.ready main {
   opacity: 1;
 }
 
+/* ── refresh button ─────────────────────────────────── */
+#refresh {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(245, 245, 245, 0.92);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.22;
+  transition:
+    opacity 380ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 220ms ease;
+}
+#refresh svg {
+  display: block;
+  transform-origin: 50% 50%;
+  transition: transform 520ms cubic-bezier(0.5, 0, 0.2, 1);
+}
+main:hover #refresh {
+  opacity: 0.55;
+}
+#refresh:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.08);
+}
+#refresh:hover svg {
+  transform: rotate(-90deg);
+}
+#refresh:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
+}
+
+body.loading #refresh {
+  opacity: 0.9;
+  pointer-events: none;
+}
+body.loading #refresh svg {
+  animation: sotto-spin 1.05s linear infinite;
+  transition: none;
+}
+@keyframes sotto-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── text ───────────────────────────────────────────── */
 #text {
   margin: 0;
   font-size: 17px;
@@ -51,6 +110,13 @@ body.ready main {
   word-break: keep-all;
   overflow-wrap: break-word;
   text-wrap: balance;
+
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 560ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 560ms cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
 }
 
 .meta {
@@ -63,10 +129,8 @@ body.ready main {
   letter-spacing: 0.28em;
   text-transform: uppercase;
   color: rgba(220, 220, 220, 0.34);
-}
-
-#source {
-  font-style: normal;
+  opacity: 1;
+  transition: opacity 420ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #hint {
@@ -75,17 +139,22 @@ body.ready main {
   color: rgba(220, 220, 220, 0.28);
 }
 
-body.loading main {
-  opacity: 0.6;
+/* swap state — old content fades up & out before new content arrives */
+body.swap-out #text {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+body.swap-out .meta {
+  opacity: 0;
 }
 
-body.loading #text::after {
-  content: '…';
-  margin-left: 4px;
-  animation: pulse 1.6s ease-in-out infinite;
+/* fresh state right after content replaced — starts below + invisible */
+body.swap-in #text {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: none;
 }
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
+body.swap-in .meta {
+  opacity: 0;
+  transition: none;
 }

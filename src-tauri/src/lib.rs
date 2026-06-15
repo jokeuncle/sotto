@@ -73,7 +73,7 @@ pub fn run() {
             position_bottom_right(&window);
 
             #[cfg(target_os = "macos")]
-            macos::pin_to_desktop_level(&window);
+            macos::pin_below_normal(&window);
 
             window.show().ok();
 

@@ -3,10 +3,6 @@ use objc::{class, msg_send, sel, sel_impl};
 
 type Id = *mut Object;
 
-extern "C" {
-    fn CGWindowLevelForKey(key: i32) -> i32;
-}
-
 // 让 app 不出现在 Dock 和 Cmd+Tab 切换器里
 pub fn set_accessory_policy() {
     unsafe {
@@ -17,8 +13,11 @@ pub fn set_accessory_policy() {
     }
 }
 
-// 把窗口压到桌面图标层级——在所有普通应用窗口之下、壁纸之上
-pub fn pin_to_desktop_level(window: &tauri::WebviewWindow) {
+// 把窗口压到“普通窗口之下 1 级”——所有正常应用窗口都会盖住它，
+// 但仍高于 Finder 的桌面/图标层，所以鼠标事件能到 webview 这里。
+// 注：之前用过 kCGDesktopIconWindowLevel(=-2147483603)，确实“最低”，
+// 但代价是所有点击都会被 Finder 桌面拦截，刷新按钮没法点。
+pub fn pin_below_normal(window: &tauri::WebviewWindow) {
     let handle = match window.ns_window() {
         Ok(h) => h,
         Err(_) => return,
@@ -28,10 +27,8 @@ pub fn pin_to_desktop_level(window: &tauri::WebviewWindow) {
         return;
     }
     unsafe {
-        // kCGDesktopIconWindowLevelKey = 18
-        // 这是 macOS 上能让窗口跟桌面图标同层的最低 level，仍在所有应用之下
-        let level = CGWindowLevelForKey(18);
-        let _: () = msg_send![ns_window, setLevel: level as i64];
+        // NSNormalWindowLevel = 0；设为 -1 让它被所有普通窗口自然遮挡。
+        let _: () = msg_send![ns_window, setLevel: -1_i64];
 
         // NSWindowCollectionBehavior：
         //   canJoinAllSpaces  = 1 << 0  = 1   (在所有桌面 Spaces 都可见)
