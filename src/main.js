@@ -98,10 +98,5 @@ $refresh.addEventListener('click', (e) => {
   e.stopPropagation();
   doRefresh();
 });
-// 双击空白处也可触发
-$body.addEventListener('dblclick', (e) => {
-  if ($refresh.contains(e.target)) return;
-  doRefresh();
-});
 
 init();

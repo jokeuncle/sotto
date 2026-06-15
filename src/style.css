@@ -34,8 +34,12 @@ main {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 
-  /* 把磨砂层钉到独立 compositor layer 上，避免子元素 transform 时被重排丢帧 */
+  /* 关键：WebKit 上 backdrop-filter 只有在元素被提升到独立合成层后才生效。
+     单写 will-change: backdrop-filter 不会触发提升；必须配合一个 transform
+     或 opacity != 1 的属性来 promote。否则首帧 filter 不参与渲染，等到第一次
+     transform 时整块面板才"突然变实"。 */
   will-change: backdrop-filter;
+  transform: translateZ(0);
 
   color: rgba(245, 245, 245, 0.92);
   opacity: 0;
