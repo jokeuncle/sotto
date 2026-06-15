@@ -1,0 +1,91 @@
+:root {
+  color-scheme: dark;
+  font-family: 'Songti SC', 'Noto Serif SC', 'STSong', 'Source Han Serif SC',
+    Georgia, 'Times New Roman', serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+main {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 26px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+
+  background: rgba(14, 14, 16, 0.42);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+
+  color: rgba(245, 245, 245, 0.92);
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+
+body.ready main {
+  opacity: 1;
+}
+
+#text {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.85;
+  letter-spacing: 0.05em;
+  font-weight: 300;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(220, 220, 220, 0.34);
+}
+
+#source {
+  font-style: normal;
+}
+
+#hint {
+  text-align: right;
+  font-size: 9px;
+  color: rgba(220, 220, 220, 0.28);
+}
+
+body.loading main {
+  opacity: 0.6;
+}
+
+body.loading #text::after {
+  content: '…';
+  margin-left: 4px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
