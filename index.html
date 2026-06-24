@@ -4,23 +4,159 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sotto</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <main>
-      <button id="refresh" type="button" aria-label="重新生成">
-        <svg viewBox="0 0 16 16" width="13" height="13" fill="none"
-             stroke="currentColor" stroke-width="1.3"
-             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M13.5 8 A5.5 5.5 0 1 1 11.6 3.9" />
-          <path d="M13.6 1.6 V4.4 H10.8" />
-        </svg>
-      </button>
-      <p id="text"></p>
+      <div class="toolbar" aria-label="操作">
+        <button id="history" class="icon-button" type="button" aria-label="最近内容" title="最近内容">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none"
+               stroke="currentColor" stroke-width="1.35"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 4.2h10" />
+            <path d="M3 8h10" />
+            <path d="M3 11.8h6" />
+          </svg>
+        </button>
+        <button id="share" class="icon-button" type="button" aria-label="下载分享卡片" title="下载分享卡片">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none"
+               stroke="currentColor" stroke-width="1.35"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 2.5v7" />
+            <path d="M5.2 7.2 8 10l2.8-2.8" />
+            <path d="M3.2 12.8h9.6" />
+          </svg>
+        </button>
+        <button id="settings" class="icon-button" type="button" aria-label="个性化设置" title="个性化设置">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none"
+               stroke="currentColor" stroke-width="1.25"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 5.4A2.6 2.6 0 1 1 8 10.6A2.6 2.6 0 0 1 8 5.4Z" />
+            <path d="M8 1.8v1.4" />
+            <path d="M8 12.8v1.4" />
+            <path d="M3.6 3.6l1 1" />
+            <path d="M11.4 11.4l1 1" />
+            <path d="M1.8 8h1.4" />
+            <path d="M12.8 8h1.4" />
+            <path d="M3.6 12.4l1-1" />
+            <path d="M11.4 4.6l1-1" />
+          </svg>
+        </button>
+        <button id="refresh" class="icon-button" type="button" aria-label="重新生成" title="重新生成">
+          <svg viewBox="0 0 16 16" width="13" height="13" fill="none"
+               stroke="currentColor" stroke-width="1.3"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M13.5 8 A5.5 5.5 0 1 1 11.6 3.9" />
+            <path d="M13.6 1.6 V4.4 H10.8" />
+          </svg>
+        </button>
+      </div>
+
+      <section class="content" aria-live="polite">
+        <p id="text"></p>
+      </section>
+
       <div class="meta">
         <span id="source"></span>
         <span id="hint"></span>
       </div>
+
+      <div id="styles" class="styles" role="tablist" aria-label="风格">
+        <button type="button" data-style="commute" role="tab">通勤</button>
+        <button type="button" data-style="night" role="tab">深夜</button>
+        <button type="button" data-style="work" role="tab">上班</button>
+        <button type="button" data-style="tender" role="tab">关系</button>
+        <button type="button" data-style="weekend" role="tab">周末</button>
+      </div>
+
+      <section id="historyPanel" class="history-panel" aria-hidden="true">
+        <div class="history-head">
+          <span>RECENT</span>
+          <button id="historyClose" class="icon-button" type="button" aria-label="关闭" title="关闭">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="none"
+                 stroke="currentColor" stroke-width="1.35"
+                 stroke-linecap="round" aria-hidden="true">
+              <path d="M4 4l8 8" />
+              <path d="M12 4l-8 8" />
+            </svg>
+          </button>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+
+      <section id="settingsPanel" class="settings-panel" aria-hidden="true">
+        <div class="settings-head">
+          <span>PERSONAL</span>
+          <button id="settingsClose" class="icon-button" type="button" aria-label="关闭" title="关闭">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="none"
+                 stroke="currentColor" stroke-width="1.35"
+                 stroke-linecap="round" aria-hidden="true">
+              <path d="M4 4l8 8" />
+              <path d="M12 4l-8 8" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="settings-group">
+          <span>风格</span>
+          <div class="choice-row" data-setting="style">
+            <button type="button" data-value="commute">通勤</button>
+            <button type="button" data-value="night">深夜</button>
+            <button type="button" data-value="work">上班</button>
+            <button type="button" data-value="tender">关系</button>
+            <button type="button" data-value="weekend">周末</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <span>节律</span>
+          <div class="choice-row" data-setting="rhythm">
+            <button type="button" data-value="moments">多时段</button>
+            <button type="button" data-value="daily">每日</button>
+            <button type="button" data-value="manual">手动</button>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <span>语气</span>
+          <div class="choice-row" data-setting="sharpness">
+            <button type="button" data-value="soft">柔</button>
+            <button type="button" data-value="quiet">静</button>
+            <button type="button" data-value="sharp">刺</button>
+          </div>
+        </div>
+
+        <label class="note-field">
+          <span>私有关键词</span>
+          <input id="personalNote" type="text" maxlength="80" autocomplete="off"
+                 placeholder="城市、晚睡、咖啡、写代码..." />
+        </label>
+
+        <div class="settings-actions">
+          <button id="tipOpen" class="ghost-button" type="button">赞赏</button>
+          <button id="settingsSave" class="save-button" type="button">生成</button>
+        </div>
+      </section>
+
+      <section id="tipPanel" class="tip-panel" aria-hidden="true">
+        <div class="tip-head">
+          <span>SUPPORT</span>
+          <button id="tipClose" class="icon-button" type="button" aria-label="关闭" title="关闭">
+            <svg viewBox="0 0 16 16" width="13" height="13" fill="none"
+                 stroke="currentColor" stroke-width="1.35"
+                 stroke-linecap="round" aria-hidden="true">
+              <path d="M4 4l8 8" />
+              <path d="M12 4l-8 8" />
+            </svg>
+          </button>
+        </div>
+        <div class="tip-card">
+          <img src="/reward.jpg" alt="赞赏码" />
+        </div>
+      </section>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
     </main>
     <script type="module" src="/src/main.js"></script>
   </body>

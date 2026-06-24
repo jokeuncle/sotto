@@ -17,31 +17,31 @@ body {
   cursor: default;
 }
 
+button,
+input {
+  font: inherit;
+}
+
 main {
   position: relative;
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  padding: 28px 32px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 18px;
+  padding: 30px 32px 24px;
+  display: grid;
+  grid-template-rows: 1fr auto auto;
+  gap: 16px;
 
-  background: rgba(14, 14, 16, 0.42);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  background: rgba(14, 14, 16, 0.46);
+  backdrop-filter: blur(24px) saturate(136%);
+  -webkit-backdrop-filter: blur(24px) saturate(136%);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.06);
 
-  /* 关键：WebKit 上 backdrop-filter 只有在元素被提升到独立合成层后才生效。
-     单写 will-change: backdrop-filter 不会触发提升；必须配合一个 transform
-     或 opacity != 1 的属性来 promote。否则首帧 filter 不参与渲染，等到第一次
-     transform 时整块面板才"突然变实"。 */
   will-change: backdrop-filter;
   transform: translateZ(0);
 
-  color: rgba(245, 245, 245, 0.92);
+  color: rgba(246, 246, 242, 0.93);
   opacity: 0;
   transition: opacity 1.4s ease;
 }
@@ -50,70 +50,135 @@ body.ready main {
   opacity: 1;
 }
 
-/* ── refresh button ─────────────────────────────────── */
-#refresh {
+.toolbar {
   position: absolute;
-  top: 10px;
-  right: 12px;
-  width: 26px;
-  height: 26px;
+  top: 9px;
+  right: 11px;
+  display: flex;
+  gap: 2px;
+  z-index: 5;
+}
+
+.icon-button {
+  width: 27px;
+  height: 27px;
   padding: 0;
   margin: 0;
   border: 0;
   background: transparent;
-  color: rgba(245, 245, 245, 0.92);
+  color: rgba(246, 246, 242, 0.92);
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.22;
+  opacity: 0.2;
   transition:
-    opacity 380ms cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 220ms ease;
+    opacity 280ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 180ms ease,
+    transform 220ms ease;
 }
-#refresh svg {
+
+.icon-button svg {
   display: block;
   transform-origin: 50% 50%;
-  transition: transform 520ms cubic-bezier(0.5, 0, 0.2, 1);
 }
-main:hover #refresh {
-  opacity: 0.55;
+
+main:hover .icon-button,
+body.history-open .icon-button,
+body.settings-open .icon-button {
+  opacity: 0.54;
 }
-#refresh:hover {
+
+.icon-button:hover {
   opacity: 1;
   background: rgba(255, 255, 255, 0.08);
 }
+
+.icon-button:disabled {
+  cursor: default;
+}
+
+.icon-button.is-busy {
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.icon-button.is-busy svg {
+  animation: sotto-pulse 760ms ease-in-out infinite alternate;
+}
+
+.icon-button.is-done {
+  opacity: 0.95;
+  color: rgba(246, 246, 242, 0.96);
+  background: rgba(205, 52, 42, 0.2);
+}
+
+.icon-button:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.42);
+  outline-offset: 2px;
+}
+
 #refresh:hover svg {
   transform: rotate(-90deg);
+  transition: transform 520ms cubic-bezier(0.5, 0, 0.2, 1);
 }
-#refresh:focus-visible {
-  outline: 1px solid rgba(255, 255, 255, 0.4);
-  outline-offset: 2px;
+
+body.loading .icon-button,
+body.loading .styles button,
+body.loading .choice-row button,
+body.loading .save-button,
+body.loading .ghost-button {
+  pointer-events: none;
 }
 
 body.loading #refresh {
   opacity: 0.9;
-  pointer-events: none;
-}
-body.loading #refresh svg {
-  animation: sotto-spin 1.05s linear infinite;
-  transition: none;
-}
-@keyframes sotto-spin {
-  to { transform: rotate(360deg); }
 }
 
-/* ── text ───────────────────────────────────────────── */
+body.loading #refresh svg {
+  animation: sotto-spin 1.05s linear infinite;
+}
+
+@keyframes sotto-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sotto-pulse {
+  to {
+    transform: translateY(1px);
+    opacity: 0.46;
+  }
+}
+
+.content {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  transition:
+    opacity 420ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 #text {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 100%;
   margin: 0;
   font-size: 17px;
-  line-height: 1.85;
-  letter-spacing: 0.05em;
+  line-height: 1.82;
+  letter-spacing: 0.04em;
   font-weight: 300;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-  text-wrap: balance;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
 
   opacity: 1;
   transform: translateY(0);
@@ -124,40 +189,373 @@ body.loading #refresh svg {
 }
 
 .meta {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 12px;
+  min-height: 12px;
+  overflow: hidden;
   font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
   font-size: 9px;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(220, 220, 220, 0.34);
+  color: rgba(224, 224, 218, 0.34);
   opacity: 1;
   transition: opacity 420ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+#source,
 #hint {
-  text-align: right;
-  font-size: 9px;
-  color: rgba(220, 220, 220, 0.28);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* swap state — old content fades up & out before new content arrives */
+#source {
+  flex: 0 1 58%;
+}
+
+#hint {
+  flex: 1 1 auto;
+  text-align: right;
+  color: rgba(224, 224, 218, 0.28);
+}
+
+.styles {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  min-height: 25px;
+  opacity: 0.28;
+  transition: opacity 260ms ease;
+}
+
+main:hover .styles,
+body.settings-open .styles,
+body.history-open .styles {
+  opacity: 0.88;
+}
+
+.styles button,
+.choice-row button,
+.save-button,
+.ghost-button {
+  box-sizing: border-box;
+  min-width: 0;
+  height: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(244, 244, 238, 0.46);
+  cursor: pointer;
+  font-family: 'SF Pro Text', 'PingFang SC', system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    opacity 180ms ease;
+}
+
+.styles button:hover,
+.choice-row button:hover,
+.save-button:hover,
+.ghost-button:hover {
+  color: rgba(246, 246, 242, 0.9);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.styles button.active,
+.choice-row button.active {
+  color: rgba(246, 246, 242, 0.92);
+  border-color: rgba(205, 52, 42, 0.34);
+  background: rgba(205, 52, 42, 0.13);
+}
+
+.history-panel,
+.settings-panel,
+.tip-panel {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding: 32px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(14, 14, 16, 0.72);
+  backdrop-filter: blur(22px) saturate(132%);
+  -webkit-backdrop-filter: blur(22px) saturate(132%);
+  border-radius: inherit;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateY(7px);
+  visibility: hidden;
+  transition:
+    opacity 260ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 260ms cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 260ms;
+  z-index: 4;
+}
+
+.settings-panel {
+  overflow: auto;
+}
+
+.tip-panel {
+  z-index: 6;
+}
+
+.settings-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.settings-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+body.history-open .history-panel,
+body.settings-open .settings-panel,
+body.tip-open .tip-panel {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
+  transition:
+    opacity 260ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 260ms cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s;
+}
+
+body.history-open .content,
+body.history-open .meta,
+body.history-open .styles,
+body.settings-open .content,
+body.settings-open .meta,
+body.settings-open .styles,
+body.tip-open .content,
+body.tip-open .meta,
+body.tip-open .styles {
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+}
+
+.history-head,
+.settings-head,
+.tip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 28px;
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: rgba(224, 224, 218, 0.38);
+}
+
+.history-list {
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-right: 4px;
+}
+
+.history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+.history-row {
+  width: 100%;
+  border: 0;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(246, 246, 242, 0.82);
+  text-align: left;
+  cursor: pointer;
+  padding: 9px 10px 8px;
+}
+
+.history-row:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.history-row span {
+  display: block;
+  font-size: 13px;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+.history-row small,
+.history-empty {
+  display: block;
+  margin-top: 4px;
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: rgba(224, 224, 218, 0.28);
+}
+
+.settings-group {
+  display: grid;
+  gap: 7px;
+}
+
+.settings-group > span,
+.note-field span {
+  font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: rgba(224, 224, 218, 0.32);
+}
+
+.choice-row {
+  display: grid;
+  gap: 6px;
+}
+
+.choice-row[data-setting='style'] {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.choice-row[data-setting='rhythm'],
+.choice-row[data-setting='sharpness'] {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.note-field {
+  display: grid;
+  gap: 7px;
+}
+
+.note-field input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 31px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  color: rgba(246, 246, 242, 0.92);
+  outline: none;
+  padding: 0 10px;
+  font-family: 'SF Pro Text', 'PingFang SC', system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+.note-field input:focus {
+  border-color: rgba(205, 52, 42, 0.38);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.note-field input::placeholder {
+  color: rgba(224, 224, 218, 0.24);
+}
+
+.save-button {
+  height: 30px;
+  min-width: 92px;
+  color: rgba(246, 246, 242, 0.82);
+}
+
+.ghost-button {
+  height: 30px;
+  min-width: 76px;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.tip-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tip-card img {
+  display: block;
+  width: min(220px, 72vw);
+  max-height: 250px;
+  object-fit: contain;
+  border-radius: 10px;
+  opacity: 0.96;
+  filter: saturate(0.92) contrast(0.98);
+}
+
+.toast {
+  position: absolute;
+  top: 10px;
+  right: 126px;
+  z-index: 8;
+  box-sizing: border-box;
+  max-width: calc(100% - 150px);
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.075);
+  color: rgba(246, 246, 242, 0.74);
+  font-family: 'SF Pro Text', 'PingFang SC', system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+body.toast-on .toast {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 body.swap-out #text {
   opacity: 0;
   transform: translateY(-6px);
 }
+
 body.swap-out .meta {
   opacity: 0;
 }
 
-/* fresh state right after content replaced — starts below + invisible */
 body.swap-in #text {
   opacity: 0;
   transform: translateY(6px);
   transition: none;
 }
+
 body.swap-in .meta {
   opacity: 0;
   transition: none;
